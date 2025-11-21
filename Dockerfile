@@ -1,46 +1,29 @@
-# ------------------------------------------------------
-# 1) Python + Debian 版本（最穩定，避免 Alpine 缺東缺西）
-#    👉 Railway / Render 最推薦 python:slim
-# ------------------------------------------------------
+# 使用 Debian slim 版 Python 映像
 FROM python:3.12-slim
 
-# ------------------------------------------------------
-# 2) 安裝系統必要元件
-#    - build-essential: 若有 C 擴充套件需編譯
-#    - fontconfig: 讓 matplotlib 可載字體
-#    - ttf-mscorefonts-installer: 微軟字體 (Arial/Tahoma)
-#    - fonts-noto: Google Noto（完整支援中文）
-# ------------------------------------------------------
+# 工作目錄
+WORKDIR /app
+
+# 安裝必要系統套件（不再裝 ttf-mscorefonts-installer）
 RUN apt-get update && apt-get install -y \
     build-essential \
     fontconfig \
-    ttf-mscorefonts-installer \
-    fonts-noto \
-    git \
-    && apt-get clean
+  && rm -rf /var/lib/apt/lists/*
 
-# ------------------------------------------------------
-# 3) 設定預設中文字體
-#    Matplotlib 會找到 Noto Sans CJK
-# ------------------------------------------------------
-RUN fc-cache -f -v
-
-# ------------------------------------------------------
-# 4) 設定工作目錄
-# ------------------------------------------------------
-WORKDIR /app
-
-# ------------------------------------------------------
-# 5) 複製程式碼
-# ------------------------------------------------------
-COPY . /app
-
-# ------------------------------------------------------
-# 6) 安裝 Python 套件
-# ------------------------------------------------------
+# 先安裝 Python 套件
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# ------------------------------------------------------
-# 7) 對 Railway / Render 必須用此啟動
-# ------------------------------------------------------
-CMD ["gunicorn", "-b", "0.0.0.0:3000", "app:app"]
+# 複製專案程式碼
+COPY . .
+
+# headless 繪圖用
+ENV MPLBACKEND=Agg
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
+
+# 對外開放的 port
+EXPOSE 8000
+
+# 啟動 Flask app（app.py 裡的 app 物件）
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "app:app"]
