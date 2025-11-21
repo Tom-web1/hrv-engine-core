@@ -1,36 +1,39 @@
-# ---------- Base Python ----------
-FROM python:3.11-slim
+# ============================
+# 1. Base Image
+# ============================
+FROM python:3.10-slim
 
-# ---------- Install system dependencies ----------
+# ============================
+# 2. Install system deps
+# ============================
 RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    libfreetype6-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libfontconfig1 \
-    && apt-get clean
+    fontconfig \
+    libfreetype6 \
+    libpng16-16 \
+    && rm -rf /var/lib/apt/lists/*
 
-# ---------- Set work directory ----------
+# ============================
+# 3. Set workdir
+# ============================
 WORKDIR /app
 
-# ---------- Copy project files ----------
+# ============================
+# 4. Copy project
+# ============================
 COPY . /app
 
-# ---------- Install Python dependencies ----------
-RUN pip install --upgrade pip
+# ============================
+# 5. Install requirements
+# ============================
 RUN pip install --no-cache-dir -r requirements.txt
 
-# ---------- Ensure fonts are included ----------
-# 將專案裡的 NotoSansTC 字型裝進系統，給 matplotlib 用
-RUN mkdir -p /usr/share/fonts/truetype/noto
-COPY fonts/*.ttf /usr/share/fonts/truetype/noto/
-RUN fc-cache -f -v
-
-# ---------- Expose Port ----------
+# ============================
+# 6. Expose port
+# ============================
+ENV PORT=8080
 EXPOSE 8080
 
-# ---------- Start Gunicorn ----------
-# Railway（或其他平台）通常會給一個環境變數 PORT
-# 我們如果有拿到 PORT 就用它，沒有就用 8080
-CMD ["sh", "-c", "gunicorn -b 0.0.0.0:${PORT:-8080} app:app"]
+# ============================
+# 7. Start the app
+# ============================
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
