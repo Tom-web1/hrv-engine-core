@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>HRV 自律神經體質分析報告</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='report.css') }}">
+</head>
+
+<body data-patient-name="{{ report.meta.name or 'HRV' }}">
+
+<!-- ========== PAGE 1 ========== -->
+<div class="report-page" id="page1">
+
+    <!-- ===== HEADER ===== -->
+    <header class="header">
+        <div class="title-block">
+            <h1 class="title">HRV 自律神經體質分析報告</h1>
+            <div class="subtitle">由 Δⁿ HRV × TCM AI 系統自動生成</div>
+        </div>
+
+        <button id="btn-download-jpg" class="download-btn">
+            下載報告 JPG（3 頁）
+        </button>
+    </header>
+
+    <!-- ===== BASIC INFO / 測量基本資訊 ===== -->
+    <section class="section">
+        <h2>
+             測量基本資訊
+            {% if report.meta.name %}
+            <span class="meta-name">{{ report.meta.name }}</span>
+            {% endif %}
+        </h2>
+
+        {% set m = report.measures or report.hrv or {} %}
+        {% set f = report.features or {} %}
+
+        <table class="meta-table meta-table-wide">
+            <tr>
+                <th>性別</th>
+                <td>{{ report.meta.sex }}</td>
+                <th>年齡</th>
+                <td>{{ report.meta.age }} 歲</td>
+            </tr>
+
+            <tr>
+                <th>身高 (cm)</th>
+                <td>{{ report.meta.height }}</td>
+                <th>體重 (kg)</th>
+                <td>{{ report.meta.weight }}</td>
+            </tr>
+
+            <tr>
+                <th>BMI</th>
+                <td>
+                    {% if f.bmi is not none %}
+                        {{ "%.1f"|format(f.bmi) }}（標準值：18~23）
+                    {% else %}
+                        --（標準值：18~23）
+                    {% endif %}
+                </td>
+                <th>測量日期</th>
+                <td>{{ report.meta.test_date }}</td>
+            </tr>
+
+            <tr>
+                <th>HR</th>
+                <td>{{ m.hr if m.hr is not none else "--" }}</td>
+                <th>SD</th>
+                <td>{{ m.sd if m.sd is not none else "--" }}</td>
+            </tr>
+
+            <tr>
+                <th>TP</th>
+                <td>{{ m.tp if m.tp is not none else "--" }}</td>
+                <th>VL</th>
+                <td>{{ m.vl if m.vl is not none else "--" }}</td>
+            </tr>
+
+            <tr>
+                <th>LF</th>
+                <td>{{ m.lf if m.lf is not none else "--" }}</td>
+                <th>HF</th>
+                <td>{{ m.hf if m.hf is not none else "--" }}</td>
+            </tr>
+
+            <tr>
+                <th>ln(TP)</th>
+                <td>
+                    {% if f.ln_tp is not none %}
+                        {{ "%.2f"|format(f.ln_tp) }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <th>ln(LF/HF)</th>
+                <td>
+                    {% if f.ln_lf_hf is not none %}
+                        {{ "%.2f"|format(f.ln_lf_hf) }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+            </tr>
+
+            <tr>
+                <th>TP_Q</th>
+                <td>
+                    {% if f.tp_q is not none %}
+                        {{ "%.2f"|format(f.tp_q) }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <th>Healthy D′</th>
+                <td>--</td>
+            </tr>
+
+            <tr>
+                <th>ANS 年齡（中位）</th>
+                <td>
+                    {% if f.ans_age_mid is not none %}
+                        {{ "%.0f"|format(f.ans_age_mid) }} 歲
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+                <th>ANS 年齡差</th>
+                <td>
+                    {% if f.ans_age_diff is not none %}
+                        {{ "%.0f"|format(f.ans_age_diff) }} 歲（-負值為較實際年紀年輕幾歲）
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </section>
+
+    <!-- ===== CONSTITUTION ===== -->
+    <section class="section">
+        <h2> 體質判讀</h2>
+
+        <p class="constitution-line">
+            體質傾向：
+            <span class="constitution-main">{{ report.pattern.main_label }}</span>
+            {% if report.pattern.sub_label %}
+            <span class="constitution-sub">｜{{ report.pattern.sub_label }}</span>
+            {% endif %}
+        </p>
+
+        <p class="summary-box">
+            {{ report.pattern.summary }}
+        </p>
+
+        <ul class="bullet-list">
+            {% for item in report.pattern.body_feelings %}
+                <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+
+        <div class="tcm-keywords-block">
+            <span class="tcm-label">中醫體質關鍵詞：</span>
+            <span class="tcm-value">{{ report.pattern.tcm_keywords | join("、") }}</span>
+        </div>
+    </section>
+
+    <!-- ===== HRV 4 FACTORS ===== -->
+    <section class="section">
+        <h2> HRV 四大基礎素質指標</h2>
+        <p class="section-note">
+            四項 HRV 核心因子構成「自律神經體質基礎量表」，亦可視為中醫體質的客觀量測基礎。
+        </p>
+
+        <div class="factor-grid">
+
+            <!-- TENSION -->
+            <div class="factor-card">
+                <div class="factor-title">神經張力（Tension）</div>
+                <div class="factor-level">
+                    等級：
+                    {% if report.vector.tension == -1 %} 偏低
+                    {% elif report.vector.tension == 0 %} 平衡
+                    {% elif report.vector.tension == 1 %} 偏高
+                    {% else %} -- {% endif %}
+                </div>
+                <p class="factor-desc">
+                    反映自律神經的基礎緊張度。過高容易緊繃、肩頸僵硬；過低則顯疲倦。
+                </p>
+            </div>
+
+            <!-- ENERGY -->
+            <div class="factor-card">
+                <div class="factor-title">能量等級（Energy）</div>
+                <div class="factor-level">
+                    等級：
+                    {% if report.vector.energy == -1 %} 偏低
+                    {% elif report.vector.energy == 0 %} 平衡
+                    {% elif report.vector.energy == 1 %} 偏高
+                    {% else %} -- {% endif %}
+                </div>
+                <p class="factor-desc">
+                    由 TP 與 TP_Z 綜合判讀能量水位。偏低易疲倦；偏高易燥熱、像火太旺。
+                </p>
+            </div>
+
+            <!-- ELASTICITY -->
+            <div class="factor-card">
+                <div class="factor-title">氣血彈性（Elasticity）</div>
+                <div class="factor-level">
+                    等級：
+                    {% if report.vector.elasticity == -1 %} 彈性較差
+                    {% elif report.vector.elasticity == 0 %} 一般
+                    {% elif report.vector.elasticity == 1 %} 彈性佳
+                    {% else %} -- {% endif %}
+                </div>
+                <p class="factor-desc">
+                    由 SDNN 反映心跳調節彈性，對應中醫的氣血運行靈活度。
+                </p>
+            </div>
+
+            <!-- RECOVERY -->
+            <div class="factor-card">
+                <div class="factor-title">恢復力（Recovery）</div>
+                <div class="factor-level">
+                    等級：
+                    {% if report.vector.recovery == -1 %} 恢復較弱
+                    {% elif report.vector.recovery == 0 %} 一般
+                    {% elif report.vector.recovery == 1 %} 恢復佳
+                    {% else %} -- {% endif %}
+                </div>
+                <p class="factor-desc">
+                    由 RV 指標推估休息與修復能力。對應中醫：陰血是否充足、腎氣是否有力。
+                </p>
+            </div>
+
+        </div>
+    </section>
+</div>
+
+<!-- ========== PAGE 2 ========== -->
+<div class="report-page" id="page2">
+
+    <!-- ===== BIO SUMMARY ===== -->
+    <section class="section">
+        <h2> 身體素質摘要</h2>
+        <table class="bio-table">
+            <tr>
+                <th>BMI</th>
+                <td>
+                    {% if f.bmi is not none %}
+                        {{ "%.1f"|format(f.bmi) }}（標準值：24 以下）
+                    {% else %}
+                        --（標準值：24 以下）
+                    {% endif %}
+                </td>
+            </tr>
+
+            <tr>
+                <th>自律神經參考年齡</th>
+                <td>
+                    {% if f.ans_age_mid is not none %}
+                        {{ "%.0f"|format(f.ans_age_mid) }} 歲
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+            </tr>
+
+            <tr>
+                <th>與實際年齡差值</th>
+                <td>
+                    {% if f.ans_age_diff is not none %}
+                        {{ "%.0f"|format(f.ans_age_diff) }} 歲（負值＝較年輕）
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </section>
+
+    <!-- ===== QUADRANT FIGURE ===== -->
+    <section class="section">
+        <h2> HRV 四象限圖（陰陽 × 虛實）</h2>
+
+        <div class="plot-block">
+            <img src="data:image/png;base64,{{ plot_base64 }}" class="quad-img">
+        </div>
+    </section>
+</div>
+
+<!-- ========== PAGE 3 ========== -->
+<div class="report-page" id="page3">
+
+    <!-- ===== TCM PATTERN ANALYSIS ===== -->
+    <section class="section">
+        <h2> 中醫體質解說與養生應用</h2>
+
+        <div class="pattern-main-title">
+            <span class="pattern-main">{{ report.pattern.main_label }}</span>
+            {% if report.pattern.sub_label %}
+                <span class="pattern-sub">｜{{ report.pattern.sub_label }}</span>
+            {% endif %}
+        </div>
+
+        <p class="pattern-summary">
+            {{ report.pattern.summary }}
+        </p>
+
+        {% if report.pattern.body_feelings %}
+        <div class="pattern-block">
+            <h3>📍 常見身體感受</h3>
+            <ul class="bullet-list">
+                {% for item in report.pattern.body_feelings %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if report.pattern.tcm_keywords %}
+        <div class="pattern-block">
+            <h3> 中醫體質關鍵詞</h3>
+            <p class="tcm-keywords">
+                {{ report.pattern.tcm_keywords | join("、") }}
+            </p>
+        </div>
+        {% endif %}
+
+        {% if report.pattern.suggestions %}
+        <div class="pattern-block">
+            <h3>📍 養生建議與改善方向</h3>
+            <ul class="bullet-list">
+                {% for tip in report.pattern.suggestions %}
+                    <li>{{ tip }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <p>由 Δⁿ HRV × TCM AI 系統自動生成｜僅供健康管理參考</p>
+    </footer>
+</div>
+
+<!-- ========== JS：html2canvas 匯出 3 張 JPG ========== -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const btn = document.getElementById("btn-download-jpg");
+    if (!btn) return;
+
+    btn.addEventListener("click", async function () {
+        const pages = document.querySelectorAll(".report-page");
+        if (!pages.length) return;
+
+        const name = (document.body.dataset.patientName || "HRV").trim() || "HRV";
+
+        let idx = 1;
+        for (const page of pages) {
+            page.scrollIntoView();
+
+            const canvas = await html2canvas(page, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: "#ffffff"
+            });
+
+            const dataURL = canvas.toDataURL("image/jpeg", 0.92);
+            const a = document.createElement("a");
+            a.href = dataURL;
+            a.download = `HRV_${name}_page${idx}.jpg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            idx += 1;
+        }
+    });
+});
+</script>
+
+</body>
+</html>

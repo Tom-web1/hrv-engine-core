@@ -1,0 +1,322 @@
+/* ===== 全域設定 ===== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang TC",
+                 "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    background: #f5f7fb;
+    color: #222;
+}
+
+/* ===== 每一頁容器 ===== */
+.report-page {
+    max-width: 900px;
+    margin: 24px auto;
+    padding: 24px 32px 40px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+/* 列印時每個 report-page 分成獨立一頁 */
+@media print {
+    body {
+        background: #ffffff;
+    }
+
+    .report-page {
+        box-shadow: none;
+        margin: 0 auto;
+        page-break-after: always;
+    }
+
+    .report-page:last-child {
+        page-break-after: auto;
+    }
+
+    .download-btn {
+        display: none;
+    }
+}
+
+/* ===== HEADER ===== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* 下載按鈕 */
+.download-btn {
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.download-btn:hover {
+    background: #1d4ed8;
+}
+
+/* ===== 區塊 ===== */
+.section {
+    margin-bottom: 28px;
+}
+
+.section h2 {
+    margin: 0 0 12px;
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.section-note {
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.meta-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+/* ===== 表格：測量基本資訊 ===== */
+.meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.meta-table th,
+.meta-table td {
+    padding: 8px 10px;
+    border: 1px solid #e5e7eb;
+}
+
+.meta-table th {
+    width: 18%;
+    background: #f9fafb;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.meta-table td {
+    background: #ffffff;
+}
+
+/* ===== Bio 摘要表 ===== */
+.bio-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.bio-table th,
+.bio-table td {
+    padding: 8px 10px;
+    border: 1px solid #e5e7eb;
+}
+
+.bio-table th {
+    width: 26%;
+    background: #f9fafb;
+    text-align: left;
+}
+
+/* ===== 體質判讀 ===== */
+.constitution-line {
+    font-size: 15px;
+    margin: 4px 0 10px;
+}
+
+.constitution-main {
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+.constitution-sub {
+    color: #4b5563;
+    font-size: 14px;
+}
+
+.summary-box {
+    margin: 0 0 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fefce8;
+    border: 1px solid #facc15;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.bullet-list {
+    margin: 6px 0 10px 20px;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.tcm-keywords-block {
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.tcm-label {
+    font-weight: 600;
+}
+
+.tcm-value {
+    color: #374151;
+}
+
+/* ===== 四大素質卡片 ===== */
+.factor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.factor-card {
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.factor-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.factor-level {
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #111827;
+}
+
+.factor-desc {
+    font-size: 13px;
+    margin: 0;
+    color: #4b5563;
+}
+
+/* ===== 象限圖 ===== */
+.plot-block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 0;
+}
+
+.quad-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+/* ===== Page 3：中醫體質解說 ===== */
+.pattern-main-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.pattern-main {
+    color: #b91c1c;
+}
+
+.pattern-sub {
+    color: #4b5563;
+    font-size: 14px;
+    margin-left: 6px;
+}
+
+.pattern-summary {
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 4px 0 12px;
+}
+
+.pattern-block {
+    margin-top: 10px;
+}
+
+.pattern-block h3 {
+    font-size: 15px;
+    margin: 0 0 6px;
+}
+
+.tcm-keywords {
+    margin: 0;
+    font-size: 14px;
+    color: #374151;
+}
+
+/* ===== Footer ===== */
+.footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+/* ===== 手機調整 ===== */
+@media (max-width: 640px) {
+    .report-page {
+        padding: 16px 14px 28px;
+        margin: 12px auto;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .factor-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .meta-table th,
+    .meta-table td {
+        font-size: 13px;
+    }
+}
