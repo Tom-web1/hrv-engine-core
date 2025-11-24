@@ -41,7 +41,7 @@ def parse_xml(xml_text: str):
         lf=float(attr.get("LF", 0)),
         hf=float(attr.get("HF", 0)),
         vl=float(attr.get("VL", 0)),
-        sdnn=float(attr.get("SD", 0)),
+        sd=float(attr.get("SD", 0)),
         hr=float(attr.get("HR", 0)),
         rv=float(attr.get("RV", 0)),
         n_beats=float(attr.get("N", 0)),

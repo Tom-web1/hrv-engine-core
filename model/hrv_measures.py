@@ -6,7 +6,7 @@ class HRVMeasures:
     lf: float
     hf: float
     vl: float
-    sdnn: float
+    sd: float
     hr: float
     rv: float
     n_beats: float
